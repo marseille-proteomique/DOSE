@@ -1,4 +1,4 @@
-##' interal method for enrichment analysis
+##' internal method for enrichment analysis
 ##'
 ##' using the hypergeometric model
 ##' @title enrich.internal
@@ -103,13 +103,33 @@ enricher_internal <- function(gene,
     N <- rep(length(extID), length(M))
     ## n <- rep(length(gene), length(M)) ## those genes that have no annotation should drop.
     n <- rep(length(qExtID2TermID), length(M))
+    ## change N to the universe begin
+    if(!is.null(universe)) {
+        N_from_universe <- getOption("enrichment_N_from_universe", FALSE)
+        if (N_from_universe) {
+            N_default <- N[1]
+            N_universe <- NA
+            if (is.character(universe)) {
+                N_universe <- length(unique(universe))
+            } else if (is.integer(universe) && length(universe)==1) {
+                N_universe <- universe
+            }
+            if (is.na(N_universe)) {
+                message("option `enrichment_N_from_universe` is ignored...")
+            } else {
+                message("N_from_universe is ", N_universe, " vs ", N_default)
+                N <- rep(N_universe, length(M))
+            }
+        }
+    }
+    ## change N to the universe end
     args.df <- data.frame(numWdrawn=k-1, ## White balls drawn
                           numW=M,        ## White balls
                           numB=N-M,      ## Black balls
                           numDrawn=n)    ## balls drawn
 
 
-    ## calcute pvalues based on hypergeometric model
+    ## calculate pvalues based on hypergeometric model
     pvalues <- apply(args.df, 1, function(n)
                      phyper(n[1], n[2], n[3], n[4], lower.tail=FALSE)
                      )
