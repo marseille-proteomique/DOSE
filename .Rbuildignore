@@ -10,3 +10,5 @@ appveyor.yml
 docs
 mkdocs
 .github
+^.*\.Rproj$
+^\.Rproj\.user$
